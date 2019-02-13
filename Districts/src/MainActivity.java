@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.util.Scanner;
 import java.lang.*;
 public class MainActivity {
 	
@@ -34,12 +35,52 @@ public class MainActivity {
 				}
 			}
 		}
+		Scanner scan = new Scanner(System.in);
+		int currency = 100;
 		while (tick != 100) {
-			System.out.println("Current tick:" + tick);
+			System.out.println("Current tick:" + tick + " Currency:" + currency);
 			System.out.println(randomValue);
 			for (int i = 0; i != randomValue; i++) {
 				DistrictArray[i].doAPrintOut();
 			}
+			System.out.println("Which District?");
+			int tempdist = scan.nextInt();
+			System.out.println("1. Populate 2. Build Houses 3. Set jobs");
+			int tempjob = scan.nextInt();
+			System.out.println("Here 0");
+			if (tempjob == 1) {
+				DistrictArray[tempdist].changePop(10);
+				currency = currency - 10;
+			}
+			else if (tempjob == 2) {
+				DistrictArray[tempdist].changeHome(10);
+				currency = currency - 10;
+			}
+			else if (tempjob == 3) {
+				DistrictArray[tempdist].changeJob(10);
+				currency = currency - 10;
+			}
+			else {
+				System.out.println("tempjob:" + tempjob + tempdist);
+			}
+			
+			for (int i = 0; i != randomValue; i++) {
+				currency = DistrictArray[i].work(currency);
+				DistrictArray[i].breed();
+				if (DistrictArray[i].residents > DistrictArray[i].homes) {
+					for (int j = 0; j != randomValue; j++) {
+						if(DistrictArray[i].checkAdjacency(DistrictArray[j].name)) {
+							if (DistrictArray[j].residents < DistrictArray[j].homes) {
+								int migrants = DistrictArray[i].residents - DistrictArray[i].homes;
+								DistrictArray[j].changePop(migrants);
+								DistrictArray[i].changePop(-migrants);
+							}
+						}
+					}
+				}
+				
+			}
+			
 			tick++;
 		}
 		for (int i = 0; i != randomValue; i++) {
@@ -50,6 +91,7 @@ public class MainActivity {
 		}
 	}
 }
+
 class District {
 	public String name;
 	public int homes = 0;
@@ -101,6 +143,19 @@ class District {
 			}
 		}
 		return false;
+	}
+	public void breed() {
+		if (residents <= homes) {
+			residents = (int) (residents * 1.5);
+		}
+	}
+	public int work(int currency) {
+		int unworked = jobs - residents;
+		if (unworked < 0) {
+			unworked = 0;
+		}
+		currency = currency + (3*(jobs - unworked));
+		return currency;
 	}
 }
 
